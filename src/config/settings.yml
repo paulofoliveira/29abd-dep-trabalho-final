@@ -1,0 +1,15 @@
+# config/settings.yaml
+spark:
+  app_name: "Trabalho Final - Data Engeering Programming"
+
+paths:
+  pedidos: "data/input/pedidos"
+  pagamentos: "data/input/pagamentos"
+  output: "data/output/relatorio"
+
+file_options:
+  pedidos_csv:
+    compression: "gzip"
+    header: True
+    sep: ";"
+    
