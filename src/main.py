@@ -1,64 +1,28 @@
 # src/main.py
 from pyspark.sql.functions import col, year
 from pyspark.sql import SparkSession
-from pyspark.sql.types import (StructType, StructField, StringType, LongType, 
-                               ArrayType, DateType, FloatType, TimestampType, BooleanType)
 from config.settings import carregar_config
+from io_utils.data_handler import DataHandler
 
 config = carregar_config()
 app_name = config['spark']['app_name']
 
 spark = SparkSession.builder.appName(app_name).getOrCreate()
-
-schema_pedidos = StructType([
-    StructField("ID_PEDIDO", StringType(), True),
-    StructField("PRODUTO", StringType(), True),
-    StructField("VALOR_UNITARIO", FloatType(), True),
-    StructField("QUANTIDADE", LongType(), True),
-    StructField("DATA_CRIACAO", DateType(), True),
-    StructField("UF", StringType(), True),
-    StructField("ID_CLIENTE", FloatType(), True),
-])
+data_handler = DataHandler(spark)
 
 print("Abrindo o dataframe de pedidos")
 path_pedidos = config['paths']['pedidos']
 compression_pedidos = config['file_options']['pedidos_csv']['compression']
 header_pedidos = config['file_options']['pedidos_csv']['header']
 separator_pedidos = config['file_options']['pedidos_csv']['sep']
-pedidos = spark.read.option("compression", compression_pedidos).csv(path_pedidos, header=True, schema=schema_pedidos, sep=separator_pedidos)
+
+pedidos_df = data_handler.load_pedidos(path_pedidos, compression_pedidos, header_pedidos, separator_pedidos)
  
-print("Renomear colunas do dataframe de pedidos")       
-pedidos_df = (
-    pedidos_df.withColumnRenamed("ID_PEDIDO", "id_pedido")
-        .withColumnRenamed("PRODUTO", "produto")
-        .withColumnRenamed("VALOR_UNITARIO", "valor_unitario")
-        .withColumnRenamed("QUANTIDADE", "quantidade")
-        .withColumnRenamed("DATA_CRIACAO", "data_criacao")
-        .withColumnRenamed("UF", "uf")
-        .withColumnRenamed("ID_CLIENTE", "id_cliente")
-    )
-
 pedidos_df.show(5, truncate=False)
-
-schema_pagamentos = StructType([
-    StructField("id_pedido", StringType(), True),     # UUID como string
-    StructField("forma_pagamento", StringType(), True),
-    StructField("valor_pagamento", FloatType(), True),
-    StructField("status", BooleanType(), True),
-    StructField("data_processamento", TimestampType(), True),
-    StructField(
-        "avaliacao_fraude",
-        StructType([
-            StructField("fraude", BooleanType(), True),
-            StructField("score", FloatType(), True),
-        ]),
-        True
-    )
-])
 
 print("Abrindo o dataframe de pagamentos")
 path_pagamentos = config['paths']['pagamentos']
-pagamentos_df = spark.read.option("compression", "gzip").json(path_pagamentos, schema=schema_pagamentos)
+pagamentos_df = data_handler.load_pagamentos(path_pagamentos)
 
 pagamentos_df.show(5, truncate=False)
 
