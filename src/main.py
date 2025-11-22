@@ -1,51 +1,43 @@
 # src/main.py
-from pyspark.sql.functions import col, year
 from config.settings import carregar_config
 from io_utils.data_handler import DataHandler
 from session.spark_session import SparkSessionManager
+from processing.transformations import Transformation
 
-config = carregar_config()
-app_name = config['spark']['app_name']
-spark = SparkSessionManager.get_spark_session(app_name)
-data_handler = DataHandler(spark)
+def main():
 
-print("Abrindo o dataframe de pedidos")
-path_pedidos = config['paths']['pedidos']
-compression_pedidos = config['file_options']['pedidos_csv']['compression']
-header_pedidos = config['file_options']['pedidos_csv']['header']
-separator_pedidos = config['file_options']['pedidos_csv']['sep']
+    config = carregar_config()
+    app_name = config['spark']['app_name']
+    spark = SparkSessionManager.get_spark_session(app_name)
+    data_handler = DataHandler(spark)
+    transformation = Transformation()
 
-pedidos_df = data_handler.load_pedidos(path_pedidos, compression_pedidos, header_pedidos, separator_pedidos)
- 
-pedidos_df.show(5, truncate=False)
+    print("Abrindo o dataframe de pedidos")
+    path_pedidos = config['paths']['pedidos']
+    compression_pedidos = config['file_options']['pedidos_csv']['compression']
+    header_pedidos = config['file_options']['pedidos_csv']['header']
+    separator_pedidos = config['file_options']['pedidos_csv']['sep']
 
-print("Abrindo o dataframe de pagamentos")
-path_pagamentos = config['paths']['pagamentos']
-pagamentos_df = data_handler.load_pagamentos(path_pagamentos)
+    pedidos_df = data_handler.load_pedidos(path_pedidos, compression_pedidos, header_pedidos, separator_pedidos)
+    
+    pedidos_df.show(5, truncate=False)
 
-pagamentos_df.show(5, truncate=False)
+    print("Abrindo o dataframe de pagamentos")
+    path_pagamentos = config['paths']['pagamentos']
+    pagamentos_df = data_handler.load_pagamentos(path_pagamentos)
 
-print("Fazendo a junção dos dataframes de pedidos com pagamentos")
-pedidos_pagamento_df = pedidos_df.join(pagamentos_df, "id_pedido", "left")
+    pagamentos_df.show(5, truncate=False)
 
-pedidos_pagamento_df.show(5, truncate=False)
+    print("Monta resultado filtrando e selecionando colunas a partir dos dataframes de pedidos e pagamentos")
+    filtrado_df = transformation.calculate(pedidos_df, pagamentos_df)
 
-print("Monta resulatdo filtrando e selecionando colunas a partir do DF de junção")
-filtrado_df = pedidos_pagamento_df.filter((col("status") == False) & (col("avaliacao_fraude.fraude") == False) & (year(col("data_criacao")) == 2025)) \
-            .select("id_pedido", 
-                    "uf", 
-                    "forma_pagamento", 
-                    (col("valor_unitario") * col("quantidade")).alias("valor_total"), 
-                    "data_criacao").orderBy(
-                                    col("uf").asc(),
-                                    col("forma_pagamento").asc(),
-                                    col("data_criacao").asc()
-                                )
+    filtrado_df.show(20, truncate=False)
 
-filtrado_df.show(20, truncate=False)
+    print("Escrevendo o resultado em parquet")
+    path_output = config['paths']['output']
+    filtrado_df.write.mode("overwrite").parquet(path_output)
 
-print("Escrevendo o resultado em parquet")
-path_output = config['paths']['output']
-filtrado_df.write.mode("overwrite").parquet(path_output)
+    spark.stop()
 
-spark.stop()
+if __name__ == "__main__":
+    main()
