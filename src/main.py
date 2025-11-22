@@ -41,5 +41,5 @@ def main():
     spark.stop()
 
 if __name__ == "__main__":
-    configurar_logging("pipeline.log"))
+    configurar_logging("pipeline.log")
     main()
