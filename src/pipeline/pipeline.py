@@ -1,4 +1,7 @@
 # src/pipeline/pipeline.py
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Pipeline:
     """
@@ -13,7 +16,8 @@ class Pipeline:
 
     def run(self):
         """Executa o pipeline de dados."""
-        print("Abrindo o dataframe de pedidos")
+        logger.info("Pipeline iniciado...")
+        logger.info("Abrindo o dataframe de pedidos")
         path_pedidos = self.config['paths']['pedidos']
         compression_pedidos = self.config['file_options']['pedidos_csv']['compression']
         header_pedidos = self.config['file_options']['pedidos_csv']['header']
@@ -23,17 +27,19 @@ class Pipeline:
         
         pedidos_df.show(5, truncate=False)
 
-        print("Abrindo o dataframe de pagamentos")
+        logger.info("Abrindo o dataframe de pagamentos")
         path_pagamentos = self.config['paths']['pagamentos']
         pagamentos_df = self.data_handler.load_pagamentos(path_pagamentos)
 
         pagamentos_df.show(5, truncate=False)
 
-        print("Monta resultado filtrando e selecionando colunas a partir dos dataframes de pedidos e pagamentos")
+        logger.info("Monta resultado filtrando e selecionando colunas a partir dos dataframes de pedidos e pagamentos")
         resultado_df = self.transformation.calculate(pedidos_df, pagamentos_df)
 
         resultado_df.show(20, truncate=False)
 
-        print("Escrevendo o resultado em parquet")
+        logger.info("Escrevendo o resultado em parquet")
         path_output = self.config['paths']['output']
         resultado_df.write.mode("overwrite").parquet(path_output)
+
+        logger.info("Pipeline finalizado.")

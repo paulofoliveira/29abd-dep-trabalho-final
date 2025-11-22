@@ -4,6 +4,24 @@ from io_utils.data_handler import DataHandler
 from session.spark_session import SparkSessionManager
 from processing.transformations import Transformation
 from pipeline.pipeline import Pipeline
+import logging
+
+def configurar_logging():
+  """Configura o logging para todo o projeto."""
+  logging.basicConfig(
+
+      level=logging.INFO,
+      format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+      datefmt='%Y-%m-%d %H:%M:%S',
+
+      handlers=[
+          logging.FileHandler("dataeng-pyspark-poo.log"), # Log para arquivo
+          logging.StreamHandler()                         # Log para o console (terminal)
+      ]
+  )
+
+  logging.info("Logging configurado.")
+
 
 def main():
     """
@@ -23,4 +41,5 @@ def main():
     spark.stop()
 
 if __name__ == "__main__":
+    configurar_logging()
     main()
