@@ -3,11 +3,13 @@ from pyspark.sql.functions import col, year
 from config.settings import carregar_config
 from io_utils.data_handler import DataHandler
 from session.spark_session import SparkSessionManager
+from processing.transformations import Transformation
 
 config = carregar_config()
 app_name = config['spark']['app_name']
 spark = SparkSessionManager.get_spark_session(app_name)
 data_handler = DataHandler(spark)
+transformation = Transformation()
 
 print("Abrindo o dataframe de pedidos")
 path_pedidos = config['paths']['pedidos']
@@ -26,7 +28,7 @@ pagamentos_df = data_handler.load_pagamentos(path_pagamentos)
 pagamentos_df.show(5, truncate=False)
 
 print("Fazendo a junção dos dataframes de pedidos com pagamentos")
-pedidos_pagamento_df = pedidos_df.join(pagamentos_df, "id_pedido", "left")
+pedidos_pagamento_df = transformation.join_pedidos_pagamentos(pedidos_df, pagamentos_df)
 
 pedidos_pagamento_df.show(5, truncate=False)
 
