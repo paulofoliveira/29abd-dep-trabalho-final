@@ -1,6 +1,6 @@
 # config/settings.yaml
 spark:
-  app_name: "Trabalho Final - Data Engeering Programming"
+  app_name: "dataeng_pyspark_data_pipeline_29abd"
 
 paths:
   pedidos: "data/input/pedidos"
