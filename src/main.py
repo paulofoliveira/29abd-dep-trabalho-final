@@ -6,7 +6,7 @@ from processing.transformations import Transformation
 from pipeline.pipeline import Pipeline
 import logging
 
-def configurar_logging():
+def configurar_logging(log_name: str):
   """Configura o logging para todo o projeto."""
   logging.basicConfig(
 
@@ -15,7 +15,7 @@ def configurar_logging():
       datefmt='%Y-%m-%d %H:%M:%S',
 
       handlers=[
-          logging.FileHandler("dataeng-pyspark-poo.log"), # Log para arquivo
+          logging.FileHandler(log_name), # Log para arquivo
           logging.StreamHandler()                         # Log para o console (terminal)
       ]
   )
@@ -41,5 +41,5 @@ def main():
     spark.stop()
 
 if __name__ == "__main__":
-    configurar_logging()
+    configurar_logging("pipeline.log"))
     main()
