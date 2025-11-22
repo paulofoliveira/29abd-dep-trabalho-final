@@ -1,13 +1,12 @@
 # src/main.py
 from pyspark.sql.functions import col, year
-from pyspark.sql import SparkSession
 from config.settings import carregar_config
 from io_utils.data_handler import DataHandler
+from session.spark_session import SparkSessionManager
 
 config = carregar_config()
 app_name = config['spark']['app_name']
-
-spark = SparkSession.builder.appName(app_name).getOrCreate()
+spark = SparkSessionManager.get_spark_session(app_name)
 data_handler = DataHandler(spark)
 
 print("Abrindo o dataframe de pedidos")
