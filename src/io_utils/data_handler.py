@@ -12,6 +12,7 @@ class DataHandler:
         self.spark = spark
 
     def _get_schema_pedidos(self) -> StructType:
+        """Define o schema para o dataframe de pedidos."""
         return StructType([
             StructField("ID_PEDIDO", StringType(), True),
             StructField("PRODUTO", StringType(), True),
@@ -23,6 +24,7 @@ class DataHandler:
         ])
     
     def _get_schema_pagamentos(self) -> StructType:
+        """Define o schema para o dataframe de pagamentos."""
         return StructType([
             StructField("id_pedido", StringType(), True),     # UUID como string
             StructField("forma_pagamento", StringType(), True),
@@ -40,7 +42,8 @@ class DataHandler:
         ])
     
     def load_pedidos(self, path: str, compression: str, header:bool, separator:str) -> DataFrame:
-        """Carrega o dataframe de pedidos a partir de arquivos CSV."""
+        """Carrega o dataframe de pedidos a partir de arquivos CSV comprimidos.
+        :param path: Caminho para os arquivos de pedidos."""
         schema = self._get_schema_pedidos()
         df = self.spark.read.option("compression", compression).csv(path, header=header, schema=schema, sep=separator)
         
@@ -56,7 +59,9 @@ class DataHandler:
         return df
     
     def load_pagamentos(self, path: str) -> DataFrame:
-        """Carrega o dataframe de pagamentos a partir de arquivos JSON."""
+        """Carrega o dataframe de pagamentos a partir de arquivos JSON comprimidos.
+        :param path: Caminho para os arquivos de pagamentos.
+        """
         schema = self._get_schema_pagamentos()
         return self.spark.read.option("compression", "gzip").json(path, schema=schema)
 
