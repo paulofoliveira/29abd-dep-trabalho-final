@@ -29,7 +29,7 @@ def main():
     """
 
     try:
-        
+
         settings = Settings()
         app_name = settings.get_config()["spark"]["app_name"]
         spark = SparkSessionManager.get_spark_session(app_name)

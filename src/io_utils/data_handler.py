@@ -5,13 +5,11 @@ from pyspark.sql.types import (
     StructField,
     StringType,
     LongType,
-    ArrayType,
     DateType,
     FloatType,
     TimestampType,
     BooleanType,
 )
-from pyspark.errors import AnalysisException
 import logging
 
 logger = logging.getLogger(__name__)

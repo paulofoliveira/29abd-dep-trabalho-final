@@ -13,13 +13,19 @@ class Pipeline:
     Classe que orquestra a execução do pipeline de dados.
     """
 
-    def __init__(self, spark: SparkSession, data_handler: DataHandler, transformation : Transformation, settings : Settings):
+    def __init__(
+        self,
+        spark: SparkSession,
+        data_handler: DataHandler,
+        transformation: Transformation,
+        settings: Settings,
+    ):
         """Inicializa o pipeline com os componentes necessários.
         :param spark: Instância da SparkSession.
         :param data_handler: Instância do DataHandler para manipulação de dados.
         :param transformation: Instância da Transformation para transformações de dados.
         :param settings: Instância da Settings para configurações do pipeline."""
-        
+
         self.spark = spark
         self.data_handler = data_handler
         self.transformation = transformation
@@ -28,9 +34,9 @@ class Pipeline:
     def run(self):
         """Executa o pipeline de dados."""
         logger.info("Pipeline iniciado...")
-        
+
         config = self.settings.get_config()
-         
+
         logger.info("Abrindo o dataframe de pedidos")
         path_pedidos = config["paths"]["pedidos"]
         compression_pedidos = config["file_options"]["pedidos_csv"]["compression"]
