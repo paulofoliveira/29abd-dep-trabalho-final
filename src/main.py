@@ -29,16 +29,20 @@ def main():
     Configura e executa o pipeline.
     """
     
-    config = carregar_config()
-    app_name = config['spark']['app_name']
-    spark = SparkSessionManager.get_spark_session(app_name)
-    data_handler = DataHandler(spark)
-    transformation = Transformation()
+    try:
+        config = carregar_config()
+        app_name = config['spark']['app_name']
+        spark = SparkSessionManager.get_spark_session(app_name)
+        data_handler = DataHandler(spark)
+        transformation = Transformation()
 
-    pipeline = Pipeline(spark, data_handler, transformation, config)
-    pipeline.run()
-
-    spark.stop()
+        pipeline = Pipeline(spark, data_handler, transformation, config)
+        pipeline.run()
+    except Exception as e:
+        logging.error(f"Erro ao executar o pipeline: {e}")
+    finally: 
+        spark.stop()
+        logging.info("Sessão Spark finalizada.")
 
 if __name__ == "__main__":
     configurar_logging("pipeline.log")

@@ -41,5 +41,3 @@ class Pipeline:
         logger.info("Escrevendo o resultado em parquet")
         path_output = self.config['paths']['output']
         resultado_df.write.mode("overwrite").parquet(path_output)
-
-        logger.info("Pipeline finalizado.")
