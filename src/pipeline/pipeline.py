@@ -1,4 +1,8 @@
 # src/pipeline/pipeline.py
+from pyspark.sql import SparkSession
+from config.settings import Settings
+from io_utils.data_handler import DataHandler
+from processing.transformations import Transformation
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,8 +13,13 @@ class Pipeline:
     Classe que orquestra a execução do pipeline de dados.
     """
 
-    def __init__(self, spark, data_handler, transformation, settings):
-
+    def __init__(self, spark: SparkSession, data_handler: DataHandler, transformation : Transformation, settings : Settings):
+        """Inicializa o pipeline com os componentes necessários.
+        :param spark: Instância da SparkSession.
+        :param data_handler: Instância do DataHandler para manipulação de dados.
+        :param transformation: Instância da Transformation para transformações de dados.
+        :param settings: Instância da Settings para configurações do pipeline."""
+        
         self.spark = spark
         self.data_handler = data_handler
         self.transformation = transformation
@@ -43,6 +52,7 @@ class Pipeline:
         logger.info(
             "Monta resultado filtrando e selecionando colunas a partir dos dataframes de pedidos e pagamentos"
         )
+
         resultado_df = self.transformation.calculate(pedidos_df, pagamentos_df)
 
         resultado_df.show(20, truncate=False)
