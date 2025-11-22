@@ -1,5 +1,5 @@
 # src/main.py
-from config.settings import carregar_config
+from config.settings import Settings
 from io_utils.data_handler import DataHandler
 from session.spark_session import SparkSessionManager
 from processing.transformations import Transformation
@@ -29,13 +29,14 @@ def main():
     """
 
     try:
-        config = carregar_config()
-        app_name = config["spark"]["app_name"]
+        
+        settings = Settings()
+        app_name = settings.get_config()["spark"]["app_name"]
         spark = SparkSessionManager.get_spark_session(app_name)
         data_handler = DataHandler(spark)
         transformation = Transformation()
 
-        pipeline = Pipeline(spark, data_handler, transformation, config)
+        pipeline = Pipeline(spark, data_handler, transformation, settings)
         pipeline.run()
     except Exception as e:
         logging.error(f"Erro ao executar o pipeline: {e}")

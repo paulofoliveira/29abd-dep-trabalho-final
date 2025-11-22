@@ -9,21 +9,24 @@ class Pipeline:
     Classe que orquestra a execução do pipeline de dados.
     """
 
-    def __init__(self, spark, data_handler, transformation, config):
+    def __init__(self, spark, data_handler, transformation, settings):
 
         self.spark = spark
         self.data_handler = data_handler
         self.transformation = transformation
-        self.config = config
+        self.settings = settings
 
     def run(self):
         """Executa o pipeline de dados."""
         logger.info("Pipeline iniciado...")
+        
+        config = self.settings.get_config()
+         
         logger.info("Abrindo o dataframe de pedidos")
-        path_pedidos = self.config["paths"]["pedidos"]
-        compression_pedidos = self.config["file_options"]["pedidos_csv"]["compression"]
-        header_pedidos = self.config["file_options"]["pedidos_csv"]["header"]
-        separator_pedidos = self.config["file_options"]["pedidos_csv"]["sep"]
+        path_pedidos = config["paths"]["pedidos"]
+        compression_pedidos = config["file_options"]["pedidos_csv"]["compression"]
+        header_pedidos = config["file_options"]["pedidos_csv"]["header"]
+        separator_pedidos = config["file_options"]["pedidos_csv"]["sep"]
 
         pedidos_df = self.data_handler.load_pedidos(
             path_pedidos, compression_pedidos, header_pedidos, separator_pedidos
@@ -32,7 +35,7 @@ class Pipeline:
         pedidos_df.show(5, truncate=False)
 
         logger.info("Abrindo o dataframe de pagamentos")
-        path_pagamentos = self.config["paths"]["pagamentos"]
+        path_pagamentos = config["paths"]["pagamentos"]
         pagamentos_df = self.data_handler.load_pagamentos(path_pagamentos)
 
         pagamentos_df.show(5, truncate=False)
@@ -45,5 +48,5 @@ class Pipeline:
         resultado_df.show(20, truncate=False)
 
         logger.info("Escrevendo o resultado em parquet")
-        path_output = self.config["paths"]["output"]
+        path_output = config["paths"]["output"]
         resultado_df.write.mode("overwrite").parquet(path_output)
