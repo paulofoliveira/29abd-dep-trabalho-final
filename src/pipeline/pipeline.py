@@ -12,6 +12,7 @@ class Pipeline:
         self.config = config
 
     def run(self):
+        """Executa o pipeline de dados."""
         print("Abrindo o dataframe de pedidos")
         path_pedidos = self.config['paths']['pedidos']
         compression_pedidos = self.config['file_options']['pedidos_csv']['compression']
