@@ -1,5 +1,4 @@
 # src/main.py
-from pyspark.sql.functions import col, year
 from config.settings import carregar_config
 from io_utils.data_handler import DataHandler
 from session.spark_session import SparkSessionManager
@@ -27,22 +26,8 @@ pagamentos_df = data_handler.load_pagamentos(path_pagamentos)
 
 pagamentos_df.show(5, truncate=False)
 
-print("Fazendo a junção dos dataframes de pedidos com pagamentos")
-pedidos_pagamento_df = transformation.join_pedidos_pagamentos(pedidos_df, pagamentos_df)
-
-pedidos_pagamento_df.show(5, truncate=False)
-
-print("Monta resulatdo filtrando e selecionando colunas a partir do DF de junção")
-filtrado_df = pedidos_pagamento_df.filter((col("status") == False) & (col("avaliacao_fraude.fraude") == False) & (year(col("data_criacao")) == 2025)) \
-            .select("id_pedido", 
-                    "uf", 
-                    "forma_pagamento", 
-                    (col("valor_unitario") * col("quantidade")).alias("valor_total"), 
-                    "data_criacao").orderBy(
-                                    col("uf").asc(),
-                                    col("forma_pagamento").asc(),
-                                    col("data_criacao").asc()
-                                )
+print("Monta resultado filtrando e selecionando colunas a partir dos dataframes de pedidos e pagamentos")
+filtrado_df = transformation.calculate(pedidos_df, pagamentos_df)
 
 filtrado_df.show(20, truncate=False)
 
