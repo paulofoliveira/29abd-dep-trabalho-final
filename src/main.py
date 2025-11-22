@@ -1,6 +1,5 @@
 # src/main.py
 from pyspark.sql.functions import col, year
-from pyspark.sql import SparkSession
 from config.settings import carregar_config
 from io_utils.data_handler import DataHandler
 from session.spark_session import SparkSessionManager
