@@ -32,8 +32,8 @@ class Transformation:
 
         resultado_df = (
             pedidos_pagamento_df.filter(
-                (not col("status"))
-                & (not col("avaliacao_fraude.fraude"))
+                (col("status") == False)
+                & (col("avaliacao_fraude.fraude") == False)
                 & (year(col("data_criacao")) == 2025)
             )
             .select(
